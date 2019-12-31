@@ -26,7 +26,17 @@ def redshift_connector():
 
 def get_week_range(): #Count query range weekly last Sun to this Sat
 
-    today = datetime.date.today()
+    #specific date range for catching up
+    ##today = datetime.date.today()
+    ##target =  datetime.date(2019,12,21)
+    ##counter = 0
+    ##date_range = []
+    ##while counter <= 7:
+    ##    date = target + datetime.timedelta(counter)
+    ##    date_range.append(date)
+    ##    counter += 1
+
+    stoday = datetime.date.today()
     idx = (today.weekday() + 1) 
     sun = today - datetime.timedelta(7+idx)
     date_range = [(sun + datetime.timedelta(day)) for day in range(0, 7)] 
@@ -68,7 +78,7 @@ def get_count(): # Run query for each day in range and get our counts
 def get_year_range(): # Find all dates star of year to today
     
     today = datetime.date.today()
-    start_date = datetime.date(2019, 1, 1)
+    start_date = datetime.date(2020, 1, 1)
     diff = abs((start_date - today).days)+1 # Plus 1 for range
     date_range = [(today - datetime.timedelta(day)) for day in range(0, diff)] 
     return date_range
@@ -170,7 +180,7 @@ def find_week(month): # Find correct week in our month to input
 
     conn = pgsql_connector()
     cur = conn.cursor()
-    query = """SELECT week1, week2, week3, week4, week5 FROM _2019_pp WHERE month_name = (%s)"""
+    query = """SELECT week1, week2, week3, week4, week5 FROM _2020_pp WHERE month_name = (%s)"""
     cur.execute(query,(month,))
     get_weeks = cur.fetchall()
     clean_weeks = [i for i in get_weeks[0]]
@@ -188,14 +198,14 @@ def insert_sql(port_count, vip_dict, average, crd_perc): # Update and commit dat
 
     conn = pgsql_connector()
     cur = conn.cursor()
-    cur.execute(sql.SQL("UPDATE _2019_pp SET {} = %s WHERE month_name = %s").format(sql.Identifier(week)),(port_count,month,))
+    cur.execute(sql.SQL("UPDATE _2020_pp SET {} = %s WHERE month_name = %s").format(sql.Identifier(week)),(port_count,month,))
     conn.commit() #^^ Set weekly count
 
-    query = """UPDATE _2019_pp SET month_total = month_total + (%s) WHERE month_name = (%s)"""
+    query = """UPDATE _2020_pp SET month_total = month_total + (%s) WHERE month_name = (%s)"""
     cur.execute(query,(port_count,month,))
     conn.commit() #^^ Update month to date county
 
-    query = """UPDATE _2019_pp SET ytd = (SELECT SUM(month_total) FROM _2019_pp) WHERE month_name = (%s)"""
+    query = """UPDATE _2020_pp SET ytd = (SELECT SUM(month_total) FROM _2020_pp) WHERE month_name = (%s)"""
     cur.execute(query,(month,))
     conn.commit() #^^ Update yearly count
     
@@ -203,14 +213,14 @@ def insert_sql(port_count, vip_dict, average, crd_perc): # Update and commit dat
     vip_val_list = list(vip_dict.values()) # Convert to list of the values so match with DB names
 
     for dbname,vip_val in zip(db_names_list,vip_val_list): # Insert values from vip_dict 
-        cur.execute(sql.SQL("UPDATE _2019_vip SET {} = {} + %s WHERE month_name = %s;").format(sql.Identifier(dbname),sql.Identifier(dbname)),(vip_val,month,))   
+        cur.execute(sql.SQL("UPDATE _2020_vip SET {} = {} + %s WHERE month_name = %s;").format(sql.Identifier(dbname),sql.Identifier(dbname)),(vip_val,month,))   
     conn.commit()
 
-    query = """UPDATE _2019_pp SET ytd_comp_time = %s WHERE month_name = %s;"""
+    query = """UPDATE _2020_pp SET ytd_comp_time = %s WHERE month_name = %s;"""
     cur.execute(query,(average,month,)) #^^ Update ytd completion time
     conn.commit()
 
-    query = """UPDATE _2019_pp SET month_crd_hit = %s WHERE month_name = %s;"""
+    query = """UPDATE _2020_pp SET month_crd_hit = %s WHERE month_name = %s;"""
     cur.execute(query,(crd_perc,month,)) #^^ Update ytd CRD%
     conn.commit()
     conn.close()

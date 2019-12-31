@@ -8,7 +8,7 @@ from flask_PP.local import vip_ids
 db.Model.metadata.reflect(db.engine)
 
 class General(db.Model):
-    __table__ = db.Model.metadata.tables['_2019_pp']
+    __table__ = db.Model.metadata.tables['_2020_pp']
 
     def gen_pull(): #Pull data and organize data from DB
 
@@ -34,7 +34,7 @@ class General(db.Model):
             df = df.drop(columns=['Month Index', 'Year to Date', 'CRD Per Hit'])
         else:
             df = df.drop(columns=[('Month Index')])
-        df = df[df['Week 1'] != '-']
+        df = df[df['Week 1'] != 0]
         return df
     
     def get_df(): #Pull, clean, create datapoints
@@ -97,7 +97,7 @@ class General(db.Model):
         return bar_labels, bar_values
 
 class Vip(db.Model):
-    __table__ = db.Model.metadata.tables['_2019_vip']
+    __table__ = db.Model.metadata.tables['_2020_vip']
 
     def vip_pull(): #Pulls and formats data into preferred DF used for all func
 
@@ -188,6 +188,7 @@ class Vip(db.Model):
         Generates Bar plots for each Vip
         """
         df = Vip.vip_pull()
+        df = df.sort_values(by='Month Index', ascending=False).set_index('Month Index')
         df = df.groupby(['Month Name', "Month Index"], sort=False)[f'{vip}'].max().reset_index()
         bar_labels = df['Month Name'].values.tolist()
         bar_values = df[f'{vip}'].values.tolist()

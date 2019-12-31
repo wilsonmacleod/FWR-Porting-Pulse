@@ -17,7 +17,7 @@ class VipButtons(FlaskForm):
     v1 = SubmitField(vip_ids.vips['v1'])
     v3 = SubmitField(vip_ids.vips['v3'])
     v5 = SubmitField(vip_ids.vips['v5'])
-    v4 = SubmitField(vip_ids.vips['v3'])
+    v4 = SubmitField(vip_ids.vips['v4'])
     v = SubmitField(vip_ids.vips['v'])
     v6 = SubmitField(vip_ids.vips['v6'])
     v2 = SubmitField(vip_ids.vips['v2'])
